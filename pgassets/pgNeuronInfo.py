@@ -2,6 +2,7 @@ import pygame
 
 from pgassets.pgImagePanel import pgImagePanel
 from pgassets.pgObject import pgObject
+from pgassets.pgTextPanel import pgTextPanel
 
 
 class pgNeuronInfo(pgObject):
@@ -14,21 +15,18 @@ class pgNeuronInfo(pgObject):
         self.weights = []
 
         # create textlabel
-        self.label = self.font_big.render("Show info for neuron (., .)", 1, (0, 0, 0))
-        self.label_rect = self.label.get_rect()
-        self.label_rect.center = (self.rect.left + self.rect.width / 2, self.rect.top + 20)
+        self.header = pgTextPanel(pos, (self.rect.width, 40), "Show weights for neuron 0-0", transparent=True, textcolor=(0, 0, 0), fontsize=18, borderwidth=2)
 
         # create imagelabels
-        self.img_in = pgImagePanel((self.rect.left + 40, self.label_rect.bottom + 25), (32, 32), "in_icon_32.png", transparent=True)
-        self.img_out = pgImagePanel((self.rect.right - 72, self.label_rect.bottom + 25), (32, 32), "out_icon_32.png", transparent=True)
+        self.img_in = pgImagePanel((self.rect.left + 40, self.header.rect.bottom + 20), (32, 32), "in_icon_32.png", transparent=True)
+        self.img_out = pgImagePanel((self.rect.right - 72, self.header.rect.bottom + 20), (32, 32), "out_icon_32.png", transparent=True)
 
     def set_neuron(self, neuron):
         if neuron is None:
             return
         self.neuron = neuron
-        self.label = self.font_big.render("Show weights for neuron (%i, %i)" % self.neuron, 1, (0, 0, 0))
-        self.label_rect = self.label.get_rect()
-        self.label_rect.center = (self.rect.left + self.rect.width / 2, self.rect.top + 20)
+        text = "Show weights for neuron %i-%i" % self.neuron
+        self.header.set_text(text)
 
     def set_weights(self, W):
         self.weights = W
@@ -42,7 +40,7 @@ class pgNeuronInfo(pgObject):
         if self.neuron is None:
             return
 
-        screen.blit(self.label, self.label_rect)
+        self.header.draw(screen)
         self.img_in.draw(screen)
         self.img_out.draw(screen)
 

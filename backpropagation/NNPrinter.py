@@ -31,11 +31,11 @@ def show_neural_network():
     side_panel_width = 250
 
     # initialize left side panel
-    fps_panel = pgTextPanel((0, 0), (side_panel_width, 30), "0 FPS", color=COLOR_PANEL, fontsize=15)
-    cycles_panel = pgTextPanel((0, 30), (side_panel_width, 30), "Cycles: 0", color=COLOR_PANEL, fontsize=15)
-    error_panel = pgTextPanel((0, 60), (side_panel_width, 30), "Average error: 0.00%", color=COLOR_PANEL, fontsize=15)
-    error_graph = pgGraph((0, 90), (side_panel_width, 150))
-    neuron_info = pgNeuronInfo((0, 240), (side_panel_width, 310))
+    fps_panel = pgTextPanel((0, 0), (side_panel_width, 25), "0 FPS", color=COLOR_PANEL, fontsize=15)
+    cycles_panel = pgTextPanel((0, 25), (side_panel_width, 25), "Cycles: 0", color=COLOR_PANEL, fontsize=15)
+    error_panel = pgTextPanel((0, 50), (side_panel_width, 25), "Average error: 0.00%", color=COLOR_PANEL, fontsize=15)
+    error_graph = pgGraph((0, 75), (side_panel_width, 150))
+    neuron_info = pgNeuronInfo((0, 225), (side_panel_width, 325))
     threshold_slider = pgSlider((0, 550), (side_panel_width*0.8, 50))
     threshold_checkbox = pgCheckbox((0.8*side_panel_width, 550), (side_panel_width/5, 50), COLOR_PANEL)
     export_button = pgImageButton((0, 600), (side_panel_width / 3, 60), "save_icon_32.png", COLOR_PANEL)
@@ -45,6 +45,9 @@ def show_neural_network():
     empty_button = pgButton((0, 660), (side_panel_width/2, 59), "", transparent=True)
     # initialize network simulator
     nn_simulation = pgNNSimulation((side_panel_width, 0), (width - side_panel_width, 720))
+
+    assets = [fps_panel, cycles_panel, error_panel, error_graph, neuron_info, threshold_slider, threshold_checkbox,
+              export_button, restart_button, new_button, pause_button, empty_button, nn_simulation]
 
     # initialize some variables
     clock = pygame.time.Clock()
@@ -103,8 +106,7 @@ def show_neural_network():
 
                 # get threshold for weight display
                 threshold = threshold_slider.get_value()
-                show_low_weights = threshold_checkbox.get_status()
-                nn_simulation.set_threshold(threshold, show_low_weights)
+                nn_simulation.set_threshold(threshold, threshold_checkbox.get_status())
 
                 # update nn
                 nn_simulation.update()
@@ -122,24 +124,12 @@ def show_neural_network():
                 # update weights for neuron info panel
                 neuron_info.set_weights(nn_simulation.get_weights())
 
-                # draw left side panel
-                fps_panel.draw(screen)
-                cycles_panel.draw(screen)
-                error_panel.draw(screen)
-                error_graph.draw(screen)
-                neuron_info.draw(screen)
-                threshold_checkbox.draw(screen)
-                threshold_slider.draw(screen)
-                export_button.draw(screen)
-                pause_button.draw(screen)
-                restart_button.draw(screen)
-                new_button.draw(screen)
-                empty_button.draw(screen)
-                # draw simulation
-                nn_simulation.draw(screen)
+                # draw assets
+                for asset in assets:
+                    asset.draw(screen)
 
                 # draw left side panel border
-                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, side_panel_width, 90), 2)
+                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, side_panel_width, 75), 2)
                 pygame.draw.line(screen, (0, 0, 0), (side_panel_width, 0), (side_panel_width, height), 4)
 
                 # cycles++
@@ -147,24 +137,13 @@ def show_neural_network():
 
             elif state == PAUSE:
                 screen.fill(COLOR_BG)
-                # draw left side panel
-                fps_panel.draw(screen)
-                cycles_panel.draw(screen)
-                error_panel.draw(screen)
-                error_graph.draw(screen)
-                neuron_info.draw(screen)
-                threshold_checkbox.draw(screen)
-                threshold_slider.draw(screen)
-                export_button.draw(screen)
-                pause_button.draw(screen)
-                restart_button.draw(screen)
-                new_button.draw(screen)
-                empty_button.draw(screen)
-                # draw simulation
-                nn_simulation.draw(screen)
+
+                # draw assets
+                for asset in assets:
+                    asset.draw(screen)
 
                 # draw left side panel border
-                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, side_panel_width, 90), 2)
+                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, side_panel_width, 75), 2)
                 pygame.draw.line(screen, (0, 0, 0), (side_panel_width, 0), (side_panel_width, height), 4)
 
             # update display

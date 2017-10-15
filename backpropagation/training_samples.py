@@ -25,3 +25,7 @@ tr_sets_xor = [
     [np.matrix("0; 1"), 1],
     [np.matrix("1; 0"), 1],
     [np.matrix("1; 1"), 0]]
+
+
+def read_training_set_from_file(path: str) -> list:
+    pass
