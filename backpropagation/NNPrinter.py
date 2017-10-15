@@ -54,7 +54,7 @@ def show_neural_network():
     counter = 1
     error_history = []
     done = False
-    RUNNING, PAUSE = 0, 1
+    RUNNING, PAUSE, OPTIONS = 0, 1, 2
     state = PAUSE
     slider_drag = False
 
@@ -78,6 +78,9 @@ def show_neural_network():
                     elif state == RUNNING:
                         state = PAUSE
                         pause_button.set_image("play_icon_32.png")
+
+                elif new_button.collidepoint(mouse_pos):
+                    state = OPTIONS
 
                 elif restart_button.collidepoint(mouse_pos):
                     counter = 0
@@ -145,6 +148,10 @@ def show_neural_network():
                 # draw left side panel border
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, side_panel_width, 75), 2)
                 pygame.draw.line(screen, (0, 0, 0), (side_panel_width, 0), (side_panel_width, height), 4)
+
+            elif state == OPTIONS:
+                screen.fill(COLOR_BG)
+                pause_button.draw(screen)
 
             # update display
             pygame.display.flip()
