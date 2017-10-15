@@ -1,5 +1,5 @@
 # nnsimulator
-Simulate small neural networks
+Simulate small multi-layer neural networks
 
 ## Dependencies
 pygame 1.9.2  
