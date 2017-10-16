@@ -52,7 +52,7 @@ class Backpropagation:
         result = self.a(self.n_layers-1)
         return result
 
-    def calculate_error(self, data):
+    """def calculate_error(self, data):
         total_error = 0
         for i in range(len(data)):
             q, t = data[i]
@@ -60,7 +60,15 @@ class Backpropagation:
             y = self.a(self.n_layers - 1)
             total_error += np.multiply(0.5, np.power((t - y), 2)).sum()
 
-        return total_error
+        return total_error"""
+
+    def get_error(self, tr_sets):
+        # calculate error
+        total_error = 0
+        for i in range(len(tr_sets)):
+            error = (tr_sets[i][1] - self.classify(tr_sets[i][0]))
+            total_error += np.power(error, 2).sum()
+        return total_error / len(tr_sets)
 
     def delta(self, l, y):
         if l == self.n_layers - 1:

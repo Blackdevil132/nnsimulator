@@ -12,22 +12,9 @@ COLOR_NEG_WEIGHT = (255, 0, 0)
 COLOR_ZERO_WEIGHT = (216, 216, 216)
 COLOR_BIAS = (100, 100, 100)
 
-tr_sets = [
-    [np.matrix("1; 0; 0; 0; 0; 0; 0; 0"), np.matrix("1; 0; 0; 0; 0; 0; 0; 0")],
-    [np.matrix("0; 1; 0; 0; 0; 0; 0; 0"), np.matrix("0; 1; 0; 0; 0; 0; 0; 0")],
-    [np.matrix("0; 0; 1; 0; 0; 0; 0; 0"), np.matrix("0; 0; 1; 0; 0; 0; 0; 0")],
-    [np.matrix("0; 0; 0; 1; 0; 0; 0; 0"), np.matrix("0; 0; 0; 1; 0; 0; 0; 0")],
-    [np.matrix("0; 0; 0; 0; 1; 0; 0; 0"), np.matrix("0; 0; 0; 0; 1; 0; 0; 0")],
-    [np.matrix("0; 0; 0; 0; 0; 1; 0; 0"), np.matrix("0; 0; 0; 0; 0; 1; 0; 0")],
-    [np.matrix("0; 0; 0; 0; 0; 0; 1; 0"), np.matrix("0; 0; 0; 0; 0; 0; 1; 0")],
-    [np.matrix("0; 0; 0; 0; 0; 0; 0; 1"), np.matrix("0; 0; 0; 0; 0; 0; 0; 1")]]
-
-
-struct = (tr_sets[0][0].size, 3, tr_sets[0][1].size)
-
 
 class pgNNSimulation(pgObject):
-    def __init__(self, pos, size, structure=struct):
+    def __init__(self, pos, size, structure):
         pgObject.__init__(self, pos, size)
         self.structure = structure
         self.threshold = 1
@@ -52,9 +39,6 @@ class pgNNSimulation(pgObject):
         for j in range(len(self.neuron_positions)):
             for i in range(len(self.neuron_positions[j])):
                 self.neuron_positions[j][i] = (int(hor_offset + j * gap_x), int(vert_offset[j] + gap_y * i))
-
-        # initialize Neural Network
-        self.nn = Backpropagation(structure)
 
         self.neurons = []
         for column in range(len(structure)):
@@ -96,46 +80,28 @@ class pgNNSimulation(pgObject):
         else:
             return max(1, int(width))
 
-    def update(self):
-        # train network with random sample
-        x, y = random.choice(tr_sets)
-        self.nn.learn([x], [y])
-
+    def update(self, W, b):
         self.bias_weights = []
         self.weights = []
         # calculate weights
-        for l in range(len(self.nn.n_neurons) - 1):
-            for i in range(self.nn.W[l].shape[0]):
-                for j in range(self.nn.W[l].shape[1]):
+        for l in range(len(W)):
+            for i in range(W[l].shape[0]):
+                for j in range(W[l].shape[1]):
                     start = self.neuron_positions[l][j]
                     end = self.neuron_positions[l + 1][i]
-                    self.weights.append(pgWeight(start, end, self.get_color(self.nn.W[l].item(i, j)), self.get_width(self.nn.W[l].item(i, j))))
+                    self.weights.append(pgWeight(start, end, self.get_color(W[l].item(i, j)), self.get_width(W[l].item(i, j))))
 
             # calculate bias weights
             start_b = self.bias[l].rect.topleft
             for i in range(len(self.neuron_positions[l + 1])):
                 end_b = self.neuron_positions[l + 1][i]
-                self.bias_weights.append(pgWeight(start_b, end_b, COLOR_BIAS, self.get_width(self.nn.b[l].item(i, 0))))
-
-    def get_weights(self):
-        return self.nn.W
-
-    def reset(self):
-        self.nn = Backpropagation(self.structure)
+                self.bias_weights.append(pgWeight(start_b, end_b, COLOR_BIAS, self.get_width(b[l].item(i, 0))))
 
     def collidepoint(self, pos):
         for neuron in self.neurons:
             if neuron.collidepoint(pos):
                 return neuron.id
         return None
-
-    def get_error(self):
-        # calculate error
-        total_error = 0
-        for i in range(len(tr_sets)):
-            error = (tr_sets[i][1] - self.nn.classify(tr_sets[i][0]))
-            total_error += np.power(error, 2).sum()
-        return total_error / len(tr_sets)
 
     def set_threshold(self, t, s_a=0):
         self.threshold = t

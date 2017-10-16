@@ -1,7 +1,10 @@
+import random
 import sys
 
+import numpy as np
 import pygame
 
+from backpropagation.Backpropagation import Backpropagation
 from backpropagation.NNExporter import export_nn
 from backpropagation.pgNNSimulation import pgNNSimulation
 from pgassets.common.pgButton import pgButton
@@ -24,6 +27,15 @@ BLACK = (0, 0, 0)
 COLOR_PANEL = (255, 100, 100)
 COLOR_BG = (230, 230, 230)
 
+tr_sets = [
+    [np.matrix("1; 0; 0; 0; 0; 0; 0; 0"), np.matrix("1; 0; 0; 0; 0; 0; 0; 0")],
+    [np.matrix("0; 1; 0; 0; 0; 0; 0; 0"), np.matrix("0; 1; 0; 0; 0; 0; 0; 0")],
+    [np.matrix("0; 0; 1; 0; 0; 0; 0; 0"), np.matrix("0; 0; 1; 0; 0; 0; 0; 0")],
+    [np.matrix("0; 0; 0; 1; 0; 0; 0; 0"), np.matrix("0; 0; 0; 1; 0; 0; 0; 0")],
+    [np.matrix("0; 0; 0; 0; 1; 0; 0; 0"), np.matrix("0; 0; 0; 0; 1; 0; 0; 0")],
+    [np.matrix("0; 0; 0; 0; 0; 1; 0; 0"), np.matrix("0; 0; 0; 0; 0; 1; 0; 0")],
+    [np.matrix("0; 0; 0; 0; 0; 0; 1; 0"), np.matrix("0; 0; 0; 0; 0; 0; 1; 0")],
+    [np.matrix("0; 0; 0; 0; 0; 0; 0; 1"), np.matrix("0; 0; 0; 0; 0; 0; 0; 1")]]
 
 def show_neural_network():
     # initialize pygame window
@@ -49,16 +61,15 @@ def show_neural_network():
     new_button = pgImageButton((1 + 2*side_panel_width/3, 600), (side_panel_width/3, 60), "new_icon_32.png", COLOR_PANEL)
     pause_button = pgImageButton((side_panel_width/2, 660), (side_panel_width/2, 59), "play_icon_32.png", transparent=True)
     empty_button = pgButton((0, 660), (side_panel_width/2, 59), "", transparent=True)
-    # initialize network simulator
-    nn_simulation = pgNNSimulation((side_panel_width, 0), (width - side_panel_width, 720))
 
     assets = [fps_panel, cycles_panel, error_panel, error_graph, neuron_info, threshold_slider, threshold_checkbox,
-              export_button, restart_button, new_button, pause_button, empty_button, nn_simulation]
+              export_button, restart_button, new_button, pause_button, empty_button]
 
     # initialize OPTIONS state
     grid_imgs = []
     for i in range(12):
-        grid_imgs.append(pgImagePanel((0, 0), (250, 150), "brain_icon_48.png", color=COLOR_PANEL, borderwidth=2, id=i+1))
+        grid_imgs.append(pgImagePanel((0, 0), (250, 150), "brain_icon_48.png", color=COLOR_PANEL,
+                                      borderwidth=2, id=i+1))
     options_grid = pgGrid((0, 80), (width, height - 160), (3, 4), grid_imgs)
     options_header = pgTextPanel((0, 0), (width, 80), "Choose a function to learn", color=COLOR_PANEL, bold=True,
                                  fontsize=28)
@@ -68,7 +79,7 @@ def show_neural_network():
     structure_back.image = pygame.transform.rotate(structure_back.image, 180)
     structure_start = pgButton((width * 0.5 + 50, height - 65), (200, 50), "Start", COLOR_BG)
     structure_num_layer_input = pgNumInput((0.15 * width, 0.5 * height), (50, 100), 1)
-    structure_input = pgStructureInput((0.4 * width, 200), (0.5 * width, height - 400), (3, 2), 1, COLOR_PANEL)
+    structure_input = pgStructureInput((0.4 * width, 200), (0.5 * width, height - 400), (8, 8), 1, COLOR_PANEL)
     structure_num_layer_box = pgObject((0, 200), (250, height - 400), COLOR_PANEL, 2)
     structure_num_layer_box.rect.centerx = structure_num_layer_input.rect.centerx
 
@@ -107,7 +118,7 @@ def show_neural_network():
                 if state == RUNNING or state == PAUSE:
                     if export_button.collidepoint(mouse_pos):
                         print("Neural network saved in file: 'neural_network.npz'")
-                        export_nn(nn_simulation.nn, "neural_network")
+                        export_nn(nn, "neural_network")
 
                     elif pause_button.collidepoint(mouse_pos):
                         if state == PAUSE:
@@ -123,7 +134,7 @@ def show_neural_network():
                     elif restart_button.collidepoint(mouse_pos):
                         counter = 0
                         error_history = []
-                        nn_simulation.reset()
+                        nn = Backpropagation(structure_input.get_value())
 
                     elif threshold_checkbox.collidepoint(mouse_pos):
                         threshold_checkbox.update_status()
@@ -142,6 +153,10 @@ def show_neural_network():
                         state = OPTIONS
 
                     elif structure_start.collidepoint(mouse_pos):
+                        struct = structure_input.get_value()
+                        nn = Backpropagation(struct)
+                        # initialize network simulator
+                        nn_simulation = pgNNSimulation((side_panel_width, 0), (width - side_panel_width, 720), struct)
                         state = PAUSE
 
                     elif structure_input.collidepoint(mouse_pos):
@@ -161,6 +176,10 @@ def show_neural_network():
 
         else:
             if state == RUNNING:
+                # train network with random sample
+                x, y = random.choice(tr_sets)
+                nn.learn([x], [y])
+
                 screen.fill(COLOR_BG)
 
                 # get threshold for weight display
@@ -168,10 +187,10 @@ def show_neural_network():
                 nn_simulation.set_threshold(threshold, threshold_checkbox.get_status())
 
                 # update nn
-                nn_simulation.update()
+                nn_simulation.update(nn.W, nn.b)
 
                 # calculate and update error and graph
-                total_error = nn_simulation.get_error()
+                total_error = nn.get_error(tr_sets)
                 error_history.append(total_error)
                 error_graph.set_data(error_history)
                 error_panel.set_text("Average error: %.2f%%" % (100.0 * total_error))
@@ -181,11 +200,13 @@ def show_neural_network():
                 fps_panel.set_text("FPS: %i" % clock.get_fps())
 
                 # update weights for neuron info panel
-                neuron_info.set_weights(nn_simulation.get_weights())
+                neuron_info.set_weights(nn.W)
 
                 # draw assets
                 for asset in assets:
                     asset.draw(screen)
+
+                nn_simulation.draw(screen)
 
                 # draw left side panel border
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, side_panel_width, 75), 2)
@@ -200,6 +221,8 @@ def show_neural_network():
                 # draw assets
                 for asset in assets:
                     asset.draw(screen)
+
+                nn_simulation.draw(screen)
 
                 # draw left side panel border
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, side_panel_width, 75), 2)

@@ -65,4 +65,4 @@ class pgStructureInput(pgObject):
             l.draw(screen)
 
     def get_value(self):
-        return self.n_in, self.layers[1].get_value(),self.n_out
+        return tuple([self.n_in] + [l.get_value() for l in self.layers] +  [self.n_out])
