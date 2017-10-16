@@ -1,4 +1,4 @@
-from pgassets.pgTextPanel import pgTextPanel
+from pgassets.common.pgTextPanel import pgTextPanel
 
 
 class pgButton(pgTextPanel):

@@ -1,8 +1,8 @@
 import pygame
 
-from pgassets.pgImagePanel import pgImagePanel
-from pgassets.pgObject import pgObject
-from pgassets.pgTextPanel import pgTextPanel
+from pgassets.common.pgImagePanel import pgImagePanel
+from pgassets.common.pgObject import pgObject
+from pgassets.common.pgTextPanel import pgTextPanel
 
 
 class pgNeuronInfo(pgObject):

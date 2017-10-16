@@ -4,15 +4,16 @@ import pygame
 
 from backpropagation.NNExporter import export_nn
 from backpropagation.pgNNSimulation import pgNNSimulation
-from pgassets.pgButton import pgButton
-from pgassets.pgCheckbox import pgCheckbox
-from pgassets.pgGraph import pgGraph
-from pgassets.pgGrid import pgGrid
-from pgassets.pgImageButton import pgImageButton
-from pgassets.pgImagePanel import pgImagePanel
-from pgassets.pgNeuronInfo import pgNeuronInfo
-from pgassets.pgSlider import pgSlider
-from pgassets.pgTextPanel import pgTextPanel
+from pgassets.common.pgButton import pgButton
+from pgassets.common.pgCheckbox import pgCheckbox
+from pgassets.common.pgGraph import pgGraph
+from pgassets.common.pgGrid import pgGrid
+from pgassets.common.pgImageButton import pgImageButton
+from pgassets.common.pgImagePanel import pgImagePanel
+from pgassets.common.pgNumInput import pgNumInput
+from pgassets.common.pgSlider import pgSlider
+from pgassets.common.pgTextPanel import pgTextPanel
+from pgassets.neuralnetwork.pgNeuronInfo import pgNeuronInfo
 
 pygame.init()
 
@@ -54,9 +55,9 @@ def show_neural_network():
 
     # initialize OPTIONS state
     grid_imgs = []
-    for i in range(9):
-        grid_imgs.append(pgImagePanel((0, 0), (300, 150), "python_icon_32.png", color=COLOR_PANEL, borderwidth=2, id=i+1))
-    options_grid = pgGrid((0, 80), (width, height - 160), (3, 3), grid_imgs)
+    for i in range(12):
+        grid_imgs.append(pgImagePanel((0, 0), (250, 150), "python_icon_32.png", color=COLOR_PANEL, borderwidth=2, id=i+1))
+    options_grid = pgGrid((0, 80), (width, height - 160), (3, 4), grid_imgs)
     options_header = pgTextPanel((0, 0), (width, 80), "Chose a function to learn", color=COLOR_PANEL, bold=True,
                                  fontsize=28)
 
@@ -66,6 +67,7 @@ def show_neural_network():
     structure_back = pgImageButton((width * 0.4 - 50, height - 65), (120, 50), "play_icon_32.png", COLOR_BG)
     structure_back.image = pygame.transform.rotate(structure_back.image, 180)
     structure_start = pgButton((width * 0.6 - 50, height - 65), (120, 50), "Start", COLOR_BG)
+    structure_numinp = pgNumInput((100, 100), (50, 100))
 
     # initialize some variables
     clock = pygame.time.Clock()
@@ -121,8 +123,11 @@ def show_neural_network():
                     if structure_back.collidepoint(mouse_pos):
                         state = OPTIONS
 
-                    if structure_start.collidepoint(mouse_pos):
+                    elif structure_start.collidepoint(mouse_pos):
                         state = PAUSE
+
+                    elif structure_numinp.collidepoint(mouse_pos):
+                        pass
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 slider_drag = False
@@ -196,6 +201,7 @@ def show_neural_network():
 
                 structure_back.draw(screen)
                 structure_start.draw(screen)
+                structure_numinp.draw(screen)
 
             # update display
             pygame.display.flip()

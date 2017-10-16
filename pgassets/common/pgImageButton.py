@@ -1,4 +1,4 @@
-from pgassets.pgImagePanel import pgImagePanel
+from pgassets.common.pgImagePanel import pgImagePanel
 
 
 class pgImageButton(pgImagePanel):

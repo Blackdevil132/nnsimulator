@@ -1,12 +1,11 @@
 import random
 
 import numpy as np
-import pygame
 
 from backpropagation.Backpropagation import Backpropagation
-from pgassets.pgNeuron import pgNeuron
-from pgassets.pgObject import pgObject
-from pgassets.pgWeight import pgWeight
+from pgassets.common.pgObject import pgObject
+from pgassets.neuralnetwork.pgNeuron import pgNeuron
+from pgassets.neuralnetwork.pgWeight import pgWeight
 
 COLOR_POS_WEIGHT = (70, 255, 70)
 COLOR_NEG_WEIGHT = (255, 0, 0)

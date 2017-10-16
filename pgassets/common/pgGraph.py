@@ -1,6 +1,6 @@
 import pygame
 
-from pgassets.pgObject import pgObject
+from pgassets.common.pgObject import pgObject
 
 
 class pgGraph(pgObject):
