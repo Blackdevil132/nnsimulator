@@ -7,7 +7,9 @@ from backpropagation.pgNNSimulation import pgNNSimulation
 from pgassets.pgButton import pgButton
 from pgassets.pgCheckbox import pgCheckbox
 from pgassets.pgGraph import pgGraph
+from pgassets.pgGrid import pgGrid
 from pgassets.pgImageButton import pgImageButton
+from pgassets.pgImagePanel import pgImagePanel
 from pgassets.pgNeuronInfo import pgNeuronInfo
 from pgassets.pgSlider import pgSlider
 from pgassets.pgTextPanel import pgTextPanel
@@ -26,10 +28,11 @@ def show_neural_network():
     icon = pygame.image.load("images/brain_icon_32.png")
     pygame.display.set_icon(icon)
     screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Simulate Neural network with structure (., ., .)")
+    pygame.display.set_caption("Simulate Neural network with structure . - . - .")
 
     side_panel_width = 250
 
+    # initialize RUNNING/PAUSE state
     # initialize left side panel
     fps_panel = pgTextPanel((0, 0), (side_panel_width, 25), "0 FPS", color=COLOR_PANEL, fontsize=15)
     cycles_panel = pgTextPanel((0, 25), (side_panel_width, 25), "Cycles: 0", color=COLOR_PANEL, fontsize=15)
@@ -49,12 +52,27 @@ def show_neural_network():
     assets = [fps_panel, cycles_panel, error_panel, error_graph, neuron_info, threshold_slider, threshold_checkbox,
               export_button, restart_button, new_button, pause_button, empty_button, nn_simulation]
 
+    # initialize OPTIONS state
+    grid_imgs = []
+    for i in range(9):
+        grid_imgs.append(pgImagePanel((0, 0), (300, 150), "python_icon_32.png", borderwidth=2, transparent=True, id=i+1))
+    options_grid = pgGrid((0, 80), (width, height - 160), (3, 3), grid_imgs)
+    options_header = pgTextPanel((0, 0), (width, 80), "Chose a function to learn", color=COLOR_PANEL, bold=True,
+                                 fontsize=28)
+
+    # initialize STRUCTURE state
+    structure_header = pgTextPanel((0, 0), (width, 80), "Configure structure", color=COLOR_PANEL, bold=True,
+                                 fontsize=28)
+    structure_back = pgImageButton((width * 0.4 - 50, height - 65), (120, 50), "play_icon_32.png", COLOR_BG)
+    structure_back.image = pygame.transform.rotate(structure_back.image, 180)
+    structure_start = pgButton((width * 0.6 - 50, height - 65), (120, 50), "Start", COLOR_BG)
+
     # initialize some variables
     clock = pygame.time.Clock()
     counter = 1
     error_history = []
     done = False
-    RUNNING, PAUSE, OPTIONS = 0, 1, 2
+    RUNNING, PAUSE, OPTIONS, STRUCTURE = 0, 1, 2, 3
     state = PAUSE
     slider_drag = False
 
@@ -70,6 +88,10 @@ def show_neural_network():
                 if export_button.collidepoint(mouse_pos):
                     print("Neural network saved in file: 'neural_network.npz'")
                     export_nn(nn_simulation.nn, "neural_network")
+
+                elif options_grid.collidepoint(mouse_pos):
+                    if state == OPTIONS:
+                        state = STRUCTURE
 
                 elif pause_button.collidepoint(mouse_pos):
                     if state == PAUSE:
@@ -151,7 +173,21 @@ def show_neural_network():
 
             elif state == OPTIONS:
                 screen.fill(COLOR_BG)
-                pause_button.draw(screen)
+                options_header.draw(screen)
+                pygame.draw.line(screen, (0, 0, 0), (0, 80), (width, 80), 3)
+                pygame.draw.rect(screen, COLOR_PANEL, pygame.Rect(0, height - 80, width, 80))
+                pygame.draw.line(screen, (0, 0, 0), (0, height - 80), (width, height - 80), 3)
+                options_grid.draw(screen)
+
+            elif state == STRUCTURE:
+                screen.fill(COLOR_BG)
+                structure_header.draw(screen)
+                pygame.draw.line(screen, (0, 0, 0), (0, 80), (width, 80), 3)
+                pygame.draw.rect(screen, COLOR_PANEL, pygame.Rect(0, height - 80, width, 80))
+                pygame.draw.line(screen, (0, 0, 0), (0, height - 80), (width, height - 80), 3)
+
+                structure_back.draw(screen)
+                structure_start.draw(screen)
 
             # update display
             pygame.display.flip()
