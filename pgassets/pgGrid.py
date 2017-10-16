@@ -10,16 +10,15 @@ class pgGrid(pgObject):
         self.objects = objects
 
         # calculate grid
-        self.positions = [[(0, 0) for j in range(self.shape[1])] for i in range(self.shape[0])]
-        h_offset, v_offset = 110, 30
+        h_offset, v_offset = 80, 30
         gap_x = (self.rect.width - self.shape[1]*self.objects[0].rect.width - 2*h_offset) / (self.shape[1] - 1)
         gap_y = (self.rect.height - self.shape[0]*self.objects[0].rect.height - 2*v_offset) / (self.shape[0] - 1)
 
-        for i in range(self.shape[0]):
-            for j in range(self.shape[1]):
-                index = self.shape[0]*i + j
-                self.objects[index].set_pos((int(self.rect.left + h_offset + j*gap_x + j*self.objects[index].rect.width),
-                                            int(self.rect.top + v_offset + i*gap_y + i*self.objects[index].rect.height)))
+        for j in range(self.shape[0]):
+            for i in range(self.shape[1]):
+                index = self.shape[1]*j + i
+                self.objects[index].set_pos((int(self.rect.left + h_offset + i*gap_x + i*self.objects[index].rect.width),
+                                            int(self.rect.top + v_offset + j*gap_y + j*self.objects[index].rect.height)))
 
     def collidepoint(self, pos: tuple):
         for o in self.objects:

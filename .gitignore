@@ -102,3 +102,4 @@ ENV/
 .idea/
 Thumbs.db
 neural_network.npz
+pgassets/pgGridSpecial.py
