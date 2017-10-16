@@ -4,7 +4,7 @@ from pgassets.pgObject import pgObject
 
 
 class pgTextPanel(pgObject):
-    def __init__(self, pos, size, text, transparent=False, borderwidth=0, color=(255, 255, 255), textcolor=(0, 0, 0), bordercolor=(0, 0, 0), fontsize=20, bold=False):
+    def __init__(self, pos, size, text, color=(255, 255, 255), borderwidth=0, transparent=False, bordercolor=(0, 0, 0), textcolor=(0, 0, 0), fontsize=20, bold=False):
         pgObject.__init__(self, pos, size, color, borderwidth, transparent, bordercolor)
         self.font = pygame.font.SysFont("arial", fontsize)
         self.font.set_bold(bold)

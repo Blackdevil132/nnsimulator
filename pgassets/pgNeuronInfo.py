@@ -19,7 +19,9 @@ class pgNeuronInfo(pgObject):
 
         # create imagelabels
         self.img_in = pgImagePanel((self.rect.left + 40, self.header.rect.bottom + 20), (32, 32), "in_icon_32.png", transparent=True)
+        self.img_in.image = pygame.transform.rotate(self.img_in.image, 90)
         self.img_out = pgImagePanel((self.rect.right - 72, self.header.rect.bottom + 20), (32, 32), "out_icon_32.png", transparent=True)
+        self.img_out.image = pygame.transform.rotate(self.img_out.image, -90)
 
     def set_neuron(self, neuron):
         if neuron is None:
