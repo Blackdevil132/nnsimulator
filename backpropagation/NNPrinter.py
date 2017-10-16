@@ -55,7 +55,7 @@ def show_neural_network():
     # initialize OPTIONS state
     grid_imgs = []
     for i in range(9):
-        grid_imgs.append(pgImagePanel((0, 0), (300, 150), "python_icon_32.png", borderwidth=2, transparent=True, id=i+1))
+        grid_imgs.append(pgImagePanel((0, 0), (300, 150), "python_icon_32.png", color=COLOR_PANEL, borderwidth=2, id=i+1))
     options_grid = pgGrid((0, 80), (width, height - 160), (3, 3), grid_imgs)
     options_header = pgTextPanel((0, 0), (width, 80), "Chose a function to learn", color=COLOR_PANEL, bold=True,
                                  fontsize=28)
@@ -73,7 +73,7 @@ def show_neural_network():
     error_history = []
     done = False
     RUNNING, PAUSE, OPTIONS, STRUCTURE = 0, 1, 2, 3
-    state = PAUSE
+    state = OPTIONS
     slider_drag = False
 
     while not done:
@@ -84,46 +84,54 @@ def show_neural_network():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
+                if state == RUNNING or state == PAUSE:
+                    if export_button.collidepoint(mouse_pos):
+                        print("Neural network saved in file: 'neural_network.npz'")
+                        export_nn(nn_simulation.nn, "neural_network")
 
-                if export_button.collidepoint(mouse_pos):
-                    print("Neural network saved in file: 'neural_network.npz'")
-                    export_nn(nn_simulation.nn, "neural_network")
+                    elif pause_button.collidepoint(mouse_pos):
+                        if state == PAUSE:
+                            state = RUNNING
+                            pause_button.set_image("pause_icon_32.png")
+                        elif state == RUNNING:
+                            state = PAUSE
+                            pause_button.set_image("play_icon_32.png")
 
-                elif options_grid.collidepoint(mouse_pos):
-                    if state == OPTIONS:
+                    elif new_button.collidepoint(mouse_pos):
+                        state = OPTIONS
+
+                    elif restart_button.collidepoint(mouse_pos):
+                        counter = 0
+                        error_history = []
+                        nn_simulation.reset()
+
+                    elif threshold_checkbox.collidepoint(mouse_pos):
+                        threshold_checkbox.update_status()
+
+                    elif threshold_slider.collidepoint(mouse_pos):
+                        slider_drag = True
+
+                    neuron_info.set_neuron(nn_simulation.collidepoint(mouse_pos))
+
+                elif state == OPTIONS:
+                    if options_grid.collidepoint(mouse_pos):
                         state = STRUCTURE
 
-                elif pause_button.collidepoint(mouse_pos):
-                    if state == PAUSE:
-                        state = RUNNING
-                        pause_button.set_image("pause_icon_32.png")
-                    elif state == RUNNING:
+                elif state == STRUCTURE:
+                    if structure_back.collidepoint(mouse_pos):
+                        state = OPTIONS
+
+                    if structure_start.collidepoint(mouse_pos):
                         state = PAUSE
-                        pause_button.set_image("play_icon_32.png")
-
-                elif new_button.collidepoint(mouse_pos):
-                    state = OPTIONS
-
-                elif restart_button.collidepoint(mouse_pos):
-                    counter = 0
-                    error_history = []
-                    nn_simulation.reset()
-
-                elif threshold_checkbox.collidepoint(mouse_pos):
-                    threshold_checkbox.update_status()
-
-                elif threshold_slider.collidepoint(mouse_pos):
-                    slider_drag = True
-
-                neuron_info.set_neuron(nn_simulation.collidepoint(mouse_pos))
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 slider_drag = False
 
             elif event.type == pygame.MOUSEMOTION:
-                if slider_drag:
-                    mouse_pos = pygame.mouse.get_pos()
-                    threshold_slider.update_slider(mouse_pos[0])
+                if state == RUNNING or state == PAUSE:
+                    if slider_drag:
+                        mouse_pos = pygame.mouse.get_pos()
+                        threshold_slider.update_slider(mouse_pos[0])
 
         else:
             if state == RUNNING:
