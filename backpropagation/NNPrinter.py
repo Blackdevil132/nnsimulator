@@ -43,27 +43,7 @@ def show_neural_network():
     icon = pygame.image.load("images/brain_icon_32.png")
     pygame.display.set_icon(icon)
     screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("NNS Network Simulator")
-
-    side_panel_width = 250
-
-    # initialize RUNNING/PAUSE state
-    # initialize left side panel
-    fps_panel = pgTextPanel((0, 0), (side_panel_width, 25), "0 FPS", color=COLOR_PANEL, fontsize=15)
-    cycles_panel = pgTextPanel((0, 25), (side_panel_width, 25), "Cycles: 0", color=COLOR_PANEL, fontsize=15)
-    error_panel = pgTextPanel((0, 50), (side_panel_width, 25), "Average error: 0.00%", color=COLOR_PANEL, fontsize=15)
-    error_graph = pgGraph((0, 75), (side_panel_width, 150))
-    neuron_info = pgNeuronInfo((0, 225), (side_panel_width, 325))
-    threshold_slider = pgSlider((0, 550), (side_panel_width*0.8, 50))
-    threshold_checkbox = pgCheckbox((0.8*side_panel_width, 550), (side_panel_width/5, 50), COLOR_PANEL)
-    export_button = pgImageButton((0, 600), (side_panel_width / 3, 60), "save_icon_32.png", COLOR_PANEL)
-    restart_button = pgImageButton((side_panel_width / 3, 600), (side_panel_width / 3 + 1, 60), "restart_icon_32.png", COLOR_PANEL)
-    new_button = pgImageButton((1 + 2*side_panel_width/3, 600), (side_panel_width/3, 60), "new_icon_32.png", COLOR_PANEL)
-    pause_button = pgImageButton((side_panel_width/2, 660), (side_panel_width/2, 59), "play_icon_32.png", transparent=True)
-    empty_button = pgButton((0, 660), (side_panel_width/2, 59), "", transparent=True)
-
-    assets = [fps_panel, cycles_panel, error_panel, error_graph, neuron_info, threshold_slider, threshold_checkbox,
-              export_button, restart_button, new_button, pause_button, empty_button]
+    pygame.display.set_caption("NNNS Neural Network Simulator")
 
     # initialize OPTIONS state
     grid_imgs = []
@@ -100,12 +80,9 @@ def show_neural_network():
 
     # initialize some variables
     clock = pygame.time.Clock()
-    counter = 1
-    error_history = []
     done = False
     RUNNING, PAUSE, OPTIONS, STRUCTURE = 0, 1, 2, 3
     state = OPTIONS
-    slider_drag = False
 
     while not done:
         # handle events
@@ -115,36 +92,8 @@ def show_neural_network():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if state == RUNNING or state == PAUSE:
-                    if export_button.collidepoint(mouse_pos):
-                        print("Neural network saved in file: 'neural_network.npz'")
-                        export_nn(nn, "neural_network")
 
-                    elif pause_button.collidepoint(mouse_pos):
-                        if state == PAUSE:
-                            state = RUNNING
-                            pause_button.set_image("pause_icon_32.png")
-                        elif state == RUNNING:
-                            state = PAUSE
-                            pause_button.set_image("play_icon_32.png")
-
-                    elif new_button.collidepoint(mouse_pos):
-                        state = OPTIONS
-
-                    elif restart_button.collidepoint(mouse_pos):
-                        counter = 0
-                        error_history = []
-                        nn = Backpropagation(structure_input.get_value())
-
-                    elif threshold_checkbox.collidepoint(mouse_pos):
-                        threshold_checkbox.update_status()
-
-                    elif threshold_slider.collidepoint(mouse_pos):
-                        slider_drag = True
-
-                    neuron_info.set_neuron(nn_simulation.collidepoint(mouse_pos))
-
-                elif state == OPTIONS:
+                if state == OPTIONS:
                     if options_grid.collidepoint(mouse_pos):
                         state = STRUCTURE
 
@@ -164,15 +113,6 @@ def show_neural_network():
 
                     elif structure_num_layer_input.collidepoint(mouse_pos):
                         structure_input.set_num_hidden(structure_num_layer_input.get_value())
-
-            elif event.type == pygame.MOUSEBUTTONUP:
-                slider_drag = False
-
-            elif event.type == pygame.MOUSEMOTION:
-                if state == RUNNING or state == PAUSE:
-                    if slider_drag:
-                        mouse_pos = pygame.mouse.get_pos()
-                        threshold_slider.update_slider(mouse_pos[0])
 
         else:
             if state == RUNNING:
